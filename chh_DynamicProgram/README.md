@@ -30,6 +30,7 @@ $$
 
 - 为了得到最佳的 $v^*$ ，对于每个状态的 $v^*$，通过` Bellman Optimality Equation `进行迭代，迭代了很多次之后，它就会收敛。
 
+![在这里插入图片描述](https://img-blog.csdnimg.cn/e86828d1cd954282bf76caf62131b400.png)
 
 
 ## 赌徒问题
