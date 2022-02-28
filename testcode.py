@@ -16,16 +16,18 @@ import numpy as np
 #     print(t)
 
 
-Q = defaultdict(lambda: np.zeros(4))
-Q[0][1]=2
-Q[0][0]=3
-Q[0][3]=5
-print(np.argmax(Q[0]))
+# Q = defaultdict(lambda: np.zeros(4))
+# Q[0][1]=2
+# Q[0][0]=3
+# Q[0][3]=5
+# print(np.argmax(Q[0]))
+#
+#
+# print(np.eye(4))
+#
+# print(np.ones([16, 4]) / 4)
+# policy = np.ones([16, 4]) / 4
 
-
-print(np.eye(4))
-
-print(np.ones([16, 4]) / 4)
-policy = np.ones([16, 4]) / 4
-
-
+reward_list = [1,2,3,4,5,6]
+for r in reward_list[::-1]:
+    print(r)
