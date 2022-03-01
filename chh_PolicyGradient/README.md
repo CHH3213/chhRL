@@ -10,5 +10,21 @@
 
 
 ### REINFORCE算法离散形式
+- 测试环境为CartPole-v0，代码文件为：REINFORCE_discrete.py
 ### REINFORCE算法连续形式
+- 测试环境为Pendulum-v0，代码文件为：REINFORCE_continuous.py
+- 需要在主函数main.py中，修改环境参数：
+    ```python
+        parser.add_argument('--env_name', default="Pendulum-v0",
+                            help="environment name：CartPole-v0/Pendulum-v0")
+    ```
+- 目前还有问题，训练不出来
 ### REINFORCE_with_Baseline
+- 只写了离散情况的使用baseline的REINFORCE算法
+- 测试环境为CartPole-v0
+- 代码文件为：REINFORCE_with_Baseline.py
+- 需要在主函数main.py中，修改参数：
+    ```python
+        parser.add_argument('--baseline', default=True, action="store_true",
+                            help="use REINFORCE with baseline if true")
+    ```
