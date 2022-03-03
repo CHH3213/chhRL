@@ -3,10 +3,10 @@
 Created with IntelliJ PyCharm.
 @Time: 2022/3/3 15:07
 @PROJECT_NAME: chhRL
-@File: main.py
+@File: main_CNN.py
 @Author: chh3213
 @Email:
-@Description:
+@Description: 测试CNN网络的DQN的主函数
 """
 import argparse
 import os
@@ -24,10 +24,8 @@ def parseSetting():
     :return:
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env_name', default="CartPole-v0",
-                        help="environment name：CartPole-v0/CartPole-v1/Pendulum-v0")
-    parser.add_argument('--algo', default="Naive_DQN",
-                        help="algo choice：Nature_DQN/Naive_DQN")
+    parser.add_argument('--env_name', default="CartPole-v0",help="environment name：PongNoFrameskip-v4/Breakout-ram-v0...")
+    parser.add_argument('--algo', default="CNN",help="")
     """------------超参数设置------------------"""
     parser.add_argument('--lr', default=0.001, type=float, help="learning rate")
     parser.add_argument('--epsilon', default=0.1, type=float, help="epsilon greedy")
@@ -161,9 +159,13 @@ def main(args):
     else:
         if args.algo == 'Nature_DQN':
             from Nature_DQN import DQN
+            state_dim = env.observation_space.shape[0]  # 状态维度
         elif args.algo == 'Naive_DQN':
             from Naive_DQN import DQN
-        state_dim = env.observation_space.shape[0]  # 状态维度
+            state_dim = env.observation_space.shape[0]  # 状态维度
+        elif args.algo == 'CNN':
+            from DQN_CNN import DQN
+            state_dim = env.observation_space.shape[2]  # 状态维度
         action_dim = env.action_space.n  # 动作维度
     print("=====================")
     print("env: ", args.env_name)

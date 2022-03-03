@@ -97,17 +97,16 @@ class DQN:
         # 转为tensor,维度均为[batch_size]
         state_batch = torch.tensor(state_batch, device=self.device, dtype=torch.float32)
         reward_batch = torch.tensor(reward_batch, device=self.device, dtype=torch.float32)
-        # 注意action是int类型的，action=0 or 1
+        # 注意action是int类型的离散变量
         action_batch = torch.tensor(action_batch, device=self.device, dtype=torch.int64)
         next_state_batch = torch.tensor(next_state_batch, device=self.device, dtype=torch.float32)
         done_batch = torch.tensor(done_batch, device=self.device, dtype=torch.int64)
 
         # reward_batch = (reward_batch - reward_batch.mean()) / (reward_batch.std() + 1e-7)
         # print(np.shape(self.q_net(state_batch))) # [batch_size,2]
-        # torch.gather:沿给定轴dim，将输入索引张量index指定位置的值进行聚合。
         # 将action_batch升高1维，维度变为[batch_size,1]
         action_batch = action_batch.unsqueeze(1)
-        # 计算Q(s,a)
+        # 计算Q(s,a)。 torch.gather函数:沿给定轴dim，将输入索引张量index指定位置的值进行聚合。
         q_values = torch.gather(input=self.q_net(state_batch), dim=1, index=action_batch)  # shape:[batch_size,1]
         # 求出max Q^(s,)，与伪代码一致
         q_next_values = torch.max(self.q_net(next_state_batch), 1)[0].detach()  # shape:[batch_size]

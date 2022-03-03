@@ -14,9 +14,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import autograd
 from torch.autograd import Variable
 import random
+
 
 class MLP(nn.Module):
     def __init__(self, input_dim, output_dim, hidden_dim):
@@ -61,13 +61,25 @@ class CNN(nn.Module):
         return x
 
     def feature_size(self):
-        return self.features(autograd.Variable(torch.zeros(1, *self.input_dim))).view(1, -1).size(1)
+        return self.features(Variable(torch.zeros(1, *self.input_dim))).view(1, -1).size(1)
 
-    # def act(self, state, epsilon):
-    #     if random.random() > epsilon:
-    #         state = Variable(torch.FloatTensor(np.float32(state)).unsqueeze(0), volatile=True)
-    #         q_value = self.forward(state)
-    #         action = q_value.max(1)[1].data[0]
-    #     else:
-    #         action = random.randrange(env.action_space.n)
-    #     return action
+
+class CNN2(nn.Module):
+    def __init__(self, in_channels=4, num_actions=5):
+        """
+        param in_channels: The number of most recent frames stacked together as describe in the paper
+        param num_actions: number of action-value to output, one-to-one correspondence to action in game.
+        """
+        super(CNN2, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels, 32, kernel_size=8, stride=4)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
+        self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
+        self.fc4 = nn.Linear(7 * 7 * 64, 512)
+        self.fc5 = nn.Linear(512, num_actions)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.fc4(x.view(x.size(0), -1)))
+        return self.fc5(x)
