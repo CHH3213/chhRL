@@ -15,23 +15,26 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from torch import optim
+
+
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(3,6,5)
-        self.conv2 = nn.Conv2d(6,16,5)
-        self.fc1 = nn.Linear(16*5*5,120)
-        self.fc2 = nn.Linear(120,84)
-        self.fc3 = nn.Linear(84,10)
+        self.conv1 = nn.Conv2d(3, 6, 5)
+        self.conv2 = nn.Conv2d(6, 16, 5)
+        self.fc1 = nn.Linear(16 * 5 * 5, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 10)
 
-    def forward(self,x):
-        x = F.max_pool2d(F.relu(self.conv1(x)),(2,2))
-        x = F.max_pool2d(F.relu(self.conv2(x)),2)
-        x = x.view(-1,16*5*5)
+    def forward(self, x):
+        x = F.max_pool2d(F.relu(self.conv1(x)), (2, 2))
+        x = F.max_pool2d(F.relu(self.conv2(x)), 2)
+        x = x.view(-1, 16 * 5 * 5)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
         return x
+
 
 # net = Net()
 # # print(net)
@@ -72,9 +75,38 @@ class Net(nn.Module):
 # opt.step()
 
 
+# rewards=[]
+# rewards.insert(0,5)
+# rewards.insert(0,4)
+# print(rewards)
 
 
-rewards=[]
-rewards.insert(0,5)
-rewards.insert(0,4)
-print(rewards)
+a = torch.tensor([[[3, 5], [2, 3], [6, 7]]])
+# print(a)
+# print(np.shape(a))
+# a = torch.unsqueeze(a, 0)
+# print(np.shape(a))
+# # print(a)
+# a = torch.squeeze(a)
+# print(np.shape(a))
+# # print(a)
+#
+#
+# a = torch.tensor([[3, 5], [2, 3], [6, 7]])
+# b = torch.max(a, 0)[0]
+# c = torch.max(a, 1)[0]
+# print('a:',a)
+# print('b:',b)
+# print('c:',c)
+
+'测试bool的done转成float'
+# done = torch.tensor(False,dtype=torch.int64)
+# done = np.array([0,0,0,1,0,1])
+# print(1-done)
+
+
+'测试torch.gather'
+a = torch.Tensor([[1,2],[3,4]])
+print(a)
+a = torch.gather(a,1,index=torch.tensor([[0],[1]]))
+print(a)
