@@ -2,20 +2,18 @@
 # --*--coding:utf-8--*--
 """
 ==========chhRL===============
-@File: Nature_DQN.py
-@Time: 2022/3/3 下午1:45
+@File: DQN_PER.py
+@Time: 2022/3/4 上午11:44
 @Author: chh3213
-@Description: 标准的DQN，使用了target network。
-Q(s_t, a_t) = R_{t+1} + \gamma * max_{a}Q_{tar}(s_{t+1}, a).
+@Description: 使用优先经验回放的 Nature DQN
 ========Above the sun, full of fire!=============
 """
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from module.utils import hard_update, soft_update
-from module.replay_buffer import ReplayBuffer
+from module.prioritized_experience_replay.prioritized_experience_replay import Prioritized_Replay_Buffer
 
 
 class Network(nn.Module):
@@ -33,7 +31,7 @@ class Network(nn.Module):
 
 
 class DQN:
-    def __init__(self, state_dim, action_dim, args):
+    def __init__(self, state_dim, action_dim, args, param):
         self.s_dim = state_dim
         self.a_dim = action_dim
         self.lr = args.lr  # 学习率
@@ -44,7 +42,9 @@ class DQN:
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         # 经验池设置
         self.batch_size = args.batch_size
-        self.replay_buffer = ReplayBuffer(args.buffer_size, args.seed)
+        self.param = param
+        self.replay_buffer = Prioritized_Replay_Buffer(self.param, args.seed)
+
         # q网络更新次数
         self.update_cnt = 0
         self.target_update_frequency = args.target_update_frequency  # 目标网络更新频率
@@ -98,15 +98,20 @@ class DQN:
         if len(self.replay_buffer) < self.batch_size:
             return
         self.update_cnt += 1
-        state_batch, action_batch, reward_batch, next_state_batch, done_batch = self.replay_buffer.sample(
-            self.batch_size)
+        state_batch, action_batch, reward_batch, next_state_batch, done_batch, importance_sampling_weights = self.replay_buffer.sample()
+        # print(np.shape(action_batch))
+        # print(np.shape(reward_batch))
+        # print(np.shape(next_state_batch))
+        # print(np.shape(next_state_batch))
+        # print(np.shape(done_batch))
+        # print(np.shape(importance_sampling_weights))
         # 转为tensor,维度均为[batch_size]
-        state_batch = torch.tensor(state_batch, device=self.device, dtype=torch.float32)
-        reward_batch = torch.tensor(reward_batch, device=self.device, dtype=torch.float32)
+        state_batch = torch.tensor(state_batch, device=self.device, dtype=torch.float32).squeeze()
+        reward_batch = torch.tensor(reward_batch, device=self.device, dtype=torch.float32).squeeze()
         # 注意action是int类型的离散变量
-        action_batch = torch.tensor(action_batch, device=self.device, dtype=torch.int64)
-        next_state_batch = torch.tensor(next_state_batch, device=self.device, dtype=torch.float32)
-        done_batch = torch.tensor(done_batch, device=self.device, dtype=torch.int64)
+        action_batch = torch.tensor(action_batch, device=self.device, dtype=torch.int64).squeeze()
+        next_state_batch = torch.tensor(next_state_batch, device=self.device, dtype=torch.float32).squeeze()
+        done_batch = torch.tensor(done_batch, device=self.device, dtype=torch.int64).squeeze()
 
         # reward_batch = (reward_batch - reward_batch.mean()) / (reward_batch.std() + 1e-7)
         """========注意维度统一问题=========="""
@@ -123,12 +128,14 @@ class DQN:
         loss = nn.MSELoss()
         # print(np.shape(q_target))
         # q_values维度为[batch_size,1]，减少1维与q_target保持一致，即shape变为[batch_size],这样才可对应计算loss
-        q_loss = loss(q_values.squeeze(), q_target)
+        q_loss = loss(q_values.squeeze(), q_target) * importance_sampling_weights
+        q_loss = torch.mean(q_loss)
         self.optimizer.zero_grad()
         q_loss.backward()
         self.optimizer.step()
-
-        if self.update_cnt%self.target_update_frequency==0:
+        td_error = q_target.detach().cpu().numpy() - q_values.squeeze().detach().cpu().numpy()
+        self.replay_buffer.update_td_errors(td_error)
+        if self.update_cnt % self.target_update_frequency == 0:
             # 硬更新
             # hard_update(self.target_q_net, self.q_net)
             # 软更新

@@ -2,11 +2,11 @@
 # --*--coding:utf-8--*--
 """
 ==========chhRL===============
-@File: Nature_DQN.py
-@Time: 2022/3/3 下午1:45
+@File: Double_DQN.py
+@Time: 2022/3/4 上午8:53
 @Author: chh3213
-@Description: 标准的DQN，使用了target network。
-Q(s_t, a_t) = R_{t+1} + \gamma * max_{a}Q_{tar}(s_{t+1}, a).
+@Description: double DQN 实现，有两个q网络
+Q(s_t, a_t) = R_{t+1} + \gamma * Q_{tar}(s_{t+1}, max_{a}Q(s_{t+1}, a)).
 ========Above the sun, full of fire!=============
 """
 
@@ -115,20 +115,26 @@ class DQN:
         action_batch = action_batch.unsqueeze(1)
         # 计算Q(s,a)。 torch.gather函数:沿给定轴dim，将输入索引张量index指定位置的值进行聚合。
         q_values = torch.gather(input=self.q_net(state_batch), dim=1, index=action_batch)  # shape:[batch_size,1]
-        """Nature DQN 计算方式"""
-        # 求出max Q^(s',)，与伪代码一致
-        q_next_values = torch.max(self.target_q_net(next_state_batch), 1)[0].detach()  # shape:[batch_size]
-        q_target = reward_batch + self.gamma * q_next_values * (1 - done_batch)
-        """==================="""
+        """------Double DQN不同之处-----------
+        next_action是从Q_network计算出来的最大Q值的动作
+        但输出的目标Q值是target_Q_network中的next_action的Q值。
+        可以理解为：一个网络提议案，另外一个网络进行执行
+        即Q_target(s_t'|a=argmax Q(s_t‘, a))
+        """
+        _, next_action = torch.max(self.q_net(next_state_batch), 1)  # shape:[batch_size]
+        q_next_values = self.target_q_net(next_state_batch)  # shape:[batch_size,2]
+        q_target_next_values = torch.gather(input=q_next_values, dim=1,
+                                            index=next_action.unsqueeze(1)).detach().squeeze()  # shape:[batch_size]
+        """-----------------------------------"""
+        q_target = reward_batch + self.gamma * q_target_next_values * (1 - done_batch)
         loss = nn.MSELoss()
-        # print(np.shape(q_target))
         # q_values维度为[batch_size,1]，减少1维与q_target保持一致，即shape变为[batch_size],这样才可对应计算loss
         q_loss = loss(q_values.squeeze(), q_target)
         self.optimizer.zero_grad()
         q_loss.backward()
         self.optimizer.step()
 
-        if self.update_cnt%self.target_update_frequency==0:
+        if self.update_cnt % self.target_update_frequency == 0:
             # 硬更新
             # hard_update(self.target_q_net, self.q_net)
             # 软更新

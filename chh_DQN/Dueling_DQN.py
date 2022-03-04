@@ -2,14 +2,12 @@
 # --*--coding:utf-8--*--
 """
 ==========chhRL===============
-@File: Nature_DQN.py
-@Time: 2022/3/3 下午1:45
+@File: Dueling_DQN.py
+@Time: 2022/3/4 上午10:07
 @Author: chh3213
-@Description: 标准的DQN，使用了target network。
-Q(s_t, a_t) = R_{t+1} + \gamma * max_{a}Q_{tar}(s_{t+1}, a).
+@Description: Dueling DQN最大不同的地方是修改了网络架构：Q(s,a)=V(s)+A(s,a)
 ========Above the sun, full of fire!=============
 """
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -18,18 +16,26 @@ from module.utils import hard_update, soft_update
 from module.replay_buffer import ReplayBuffer
 
 
-class Network(nn.Module):
+class DuelingNet(nn.Module):
     def __init__(self, input_dim, output_dim, hidden_dim):
-        super(Network, self).__init__()
+        super(DuelingNet, self).__init__()
         self.fc1 = nn.Linear(input_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc3 = nn.Linear(hidden_dim, output_dim)
+        # 优势函数
+        self.advantage = nn.Linear(hidden_dim, output_dim)
+        # 价值函数
+        self.value = nn.Linear(hidden_dim, 1)
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        out = self.fc3(x)
-        return out
+        advantage = self.advantage(x)
+        value = self.value(x)
+        output = value + advantage
+        # 论文中给的两种方式,不过在本次实验中，直接上面的输出结果比下面两种好
+        # output = value+advantage-advantage.max()
+        # output = value+advantage-advantage.mean()  # 在实际应用中，效果更好。
+        return output
 
 
 class DQN:
@@ -49,8 +55,8 @@ class DQN:
         self.update_cnt = 0
         self.target_update_frequency = args.target_update_frequency  # 目标网络更新频率
         # 网络初始化
-        self.q_net = Network(self.s_dim, self.a_dim, args.hidden_dim).to(self.device)
-        self.target_q_net = Network(self.s_dim, self.a_dim, args.hidden_dim).to(self.device)
+        self.q_net = DuelingNet(self.s_dim, self.a_dim, args.hidden_dim).to(self.device)
+        self.target_q_net = DuelingNet(self.s_dim, self.a_dim, args.hidden_dim).to(self.device)
 
         hard_update(self.target_q_net, self.q_net)  # 硬更新方式
         # 声明优化器
@@ -115,7 +121,7 @@ class DQN:
         action_batch = action_batch.unsqueeze(1)
         # 计算Q(s,a)。 torch.gather函数:沿给定轴dim，将输入索引张量index指定位置的值进行聚合。
         q_values = torch.gather(input=self.q_net(state_batch), dim=1, index=action_batch)  # shape:[batch_size,1]
-        """Nature DQN 计算方式"""
+        """Dueling DQN 这边采取和Nature DQN计算方式一样"""
         # 求出max Q^(s',)，与伪代码一致
         q_next_values = torch.max(self.target_q_net(next_state_batch), 1)[0].detach()  # shape:[batch_size]
         q_target = reward_batch + self.gamma * q_next_values * (1 - done_batch)
@@ -128,7 +134,7 @@ class DQN:
         q_loss.backward()
         self.optimizer.step()
 
-        if self.update_cnt%self.target_update_frequency==0:
+        if self.update_cnt % self.target_update_frequency == 0:
             # 硬更新
             # hard_update(self.target_q_net, self.q_net)
             # 软更新

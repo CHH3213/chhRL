@@ -10,6 +10,7 @@ Created with IntelliJ PyCharm.
 """
 import argparse
 import os
+import sys
 import time
 
 import gym
@@ -25,9 +26,9 @@ def parseSetting():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--env_name', default="CartPole-v0",
-                        help="environment name：CartPole-v0/CartPole-v1/Pendulum-v0")
-    parser.add_argument('--algo', default="Naive_DQN",
-                        help="algo choice：Nature_DQN/Naive_DQN")
+                        help="environment name：CartPole-v0/CartPole-v1...")
+    parser.add_argument('--algo', default="Double_DQN",
+                        help="algo choice：Nature_DQN/Naive_DQN/Double_DQN/Dueling_DQN")
     """------------超参数设置------------------"""
     parser.add_argument('--lr', default=0.001, type=float, help="learning rate")
     parser.add_argument('--epsilon', default=0.1, type=float, help="epsilon greedy")
@@ -39,7 +40,7 @@ def parseSetting():
     parser.add_argument('--seed', default=1, type=int, help="seed of random")
     parser.add_argument('--episodes', default=200, type=int, help="")
     parser.add_argument('--steps', default=1000, type=int, help="")
-    parser.add_argument('--target_update_frequency', default=2, type=int, help="update frequency of target network ")
+    parser.add_argument('--target_update_frequency', default=1, type=int, help="update frequency of target network ")
 
     parser.add_argument('--test_episode', default=10, type=int, help="")
     parser.add_argument('--saveData_dir',
@@ -92,6 +93,7 @@ def train(args, env, agent):
             next_state, reward, done, _ = env.step(action)
             # print(done)
             agent.replay_buffer.push(state, action, reward, next_state, done)
+
             # 更新状态
             state = next_state
             ep_reward += reward
@@ -155,23 +157,42 @@ def main(args):
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
     if type(env.action_space) != gym.spaces.discrete.Discrete:
-        from Nature_DQN import DQN
         state_dim = env.observation_space.shape[0]  # 状态维度
         action_dim = env.action_space.shape[0]  # 动作维度
+        print("连续环境的下的DQN暂不实现，只实现离散动作的环境。")
+        sys.exit()
     else:
-        if args.algo == 'Nature_DQN':
-            from Nature_DQN import DQN
-        elif args.algo == 'Naive_DQN':
-            from Naive_DQN import DQN
         state_dim = env.observation_space.shape[0]  # 状态维度
         action_dim = env.action_space.n  # 动作维度
+        if args.algo == 'DQN_PER':
+            # 优先经验回放参数
+            hyperparameters = {
+                    "batch_size": args.batch_size,
+                    "buffer_size": args.buffer_size,
+                    "epsilon_decay_rate_denominator": 200,
+                    "alpha_prioritised_replay": 0.6,
+                    "beta_prioritised_replay": 0.4,
+                    "incremental_td_error": 1e-8,
+            }
+            from DQN_PER import DQN
+            agent = DQN(state_dim, action_dim, args, hyperparameters)
+        else:
+            if args.algo == 'Nature_DQN':
+                from Nature_DQN import DQN
+            elif args.algo == 'Naive_DQN':
+                from Naive_DQN import DQN
+            elif args.algo == 'Double_DQN':
+                from Double_DQN import DQN
+            elif args.algo == 'Dueling_DQN':
+                from Dueling_DQN import DQN
+            agent = DQN(state_dim, action_dim, args=args)
+
     print("=====================")
     print("env: ", args.env_name)
     print("algo: ", args.algo)
     print('state dim: ', state_dim)
     print('action dim: ', action_dim)
     print("==========================")
-    agent = DQN(state_dim, action_dim, args=args)
     if args.train:
         if args.restore:
             agent.load(args.saveModel_dir + args.algo + '/' + args.env_name + '/')
