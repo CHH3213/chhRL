@@ -119,7 +119,7 @@ https://arxiv.org/pdf/1707.06887.pdf
 
 
 
-> N_Step_DQN暂未实现，所以先不加入改trick。Noisy_DQN加入后代码部分有问题，还为解决，所以先不加入。Distributional_DQN比较复杂，还不是很懂，所以暂时不加入。目前实现的Rainbow包含了：Nature DQN,Double_DQN,Dueling_DQN,Prioritized Experience Replay 等4种trick。
+> N_Step_DQN暂未实现，所以先不加入该trick。Noisy_DQN加入后代码部分有问题，尚未解决，所以先不加入。Distributional_DQN比较复杂，还不是很懂，所以暂时不加入。目前实现的Rainbow包含了：Nature DQN,Double_DQN,Dueling_DQN,Prioritized Experience Replay 等4种trick。
 
 
 
