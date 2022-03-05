@@ -46,7 +46,7 @@ https://arxiv.org/abs/1511.06581v3
 
   ![在这里插入图片描述](https://img-blog.csdnimg.cn/94ebf9bc547b4ddc84d90166641cd9b4.png)
 
-  <img src="https://img-blog.csdnimg.cn/b30ae98f47a844b283cc3456622f82f2.png" alt="图片替换文本" width=40% align="middle" />
+  <img src="https://img-blog.csdnimg.cn/b30ae98f47a844b283cc3456622f82f2.png" alt="图片替换文本" width=80% align="middle" />
 
 实际使用的公式为：
 
@@ -58,7 +58,7 @@ https://arxiv.org/abs/1511.06581v3
 
 https://arxiv.org/abs/1511.05952
 
-<img src="https://img-blog.csdnimg.cn/c2d7edb57ca1407b8516f57cc540a025.png" alt="图片替换文本" width=30% align="middle" />
+<img src="https://img-blog.csdnimg.cn/c2d7edb57ca1407b8516f57cc540a025.png" alt="图片替换文本" width=50% align="middle" />
 
 
 - 原来在 `sample` 数据去训练 `Q-network` 的时候，我们是均匀地从 `experience buffer` 里面去 `sample` 数据。那这样不见得是最好的， 因为也许有一些数据比较重要。假设有一些数据，之前有 sample 过，发现这些数据的 **TD error 特别大**（TD error 就是网络的输出跟目标之间的差距），**那这些数据代表在训练网络的时候， 训练是比较不好的**。既然比较训练不好， 那就应该给它比较大的概率被 `sample` 到，即给它 `priority`，这样在训练的时候才会多考虑那些训练不好的训练数据。实际上在做 `prioritized experience replay` 的时候，你不仅会更改 `sampling` 的 process，你还会更改更新参数的方法。所以 **`prioritized experience replay` 不仅改变了 sample 数据的分布，还改变了训练过程。**
@@ -106,7 +106,7 @@ https://arxiv.org/pdf/1707.06887.pdf
 
 - 简单来说，**值函数可以看作值分布的期望**。
 
-<img src="https://img-blog.csdnimg.cn/17a80fb890d34bd79029e633f8a15105.png" alt="图片替换文本" width=30% align="middle" />
+<img src="https://img-blog.csdnimg.cn/17a80fb890d34bd79029e633f8a15105.png" alt="图片替换文本" width=50% align="middle" />
 
 表示分布当然有很多方法，高斯分布这种参数化的方法，因为它是**单峰**的，所以不使用。
 
