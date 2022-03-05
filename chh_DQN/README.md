@@ -5,15 +5,14 @@
 
 - 博客参考：https://blog.csdn.net/weixin_42301220/article/details/123221485#t9
 
+## 1. [Navie_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Naive_DQN.py)
 
-
-## 1. Navie_DQN
-![在这里插入图片描述](https://img-blog.csdnimg.cn/cbcb947b5c8f4fb8b8fc835ae9008937.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAQ0hIMzIxMw==,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](https://img-blog.csdnimg.cn/cbcb947b5c8f4fb8b8fc835ae9008937.png)
 
 没有target network的最朴素的DQN算法。
 
-## 2. Nature_DQN
-![DQN](https://img-blog.csdnimg.cn/9a7ff4f408da4ae78fa8cbd82db54cac.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAQ0hIMzIxMw==,size_20,color_FFFFFF,t_70,g_se,x_16)
+## 2. [Nature_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Nature_DQN.py)
+![DQN](https://img-blog.csdnimg.cn/9a7ff4f408da4ae78fa8cbd82db54cac.png)
 
 就是标准的DQN算法，使用了target network。算法伪代码即上图所示。
 
@@ -23,7 +22,9 @@
 
 
 
-## 3. [Double_DQN](https://arxiv.org/pdf/1509.06461.pdf)
+## 3. [Double_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Double_DQN.py)
+
+https://arxiv.org/pdf/1509.06461.pdf
 
 - 在 Double DQN 里面，选动作的 Q-function 跟算目标Q值的 Q-function 不是同一个。在在 Double DQN 里面，有两个 Q-network：
 
@@ -36,7 +37,9 @@
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/9e9dfe39a44a4a70afd4ea498a6f4291.png)
 
-## 4. [Dueling_DQN](https://arxiv.org/abs/1511.06581v3)
+## 4. [Dueling_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Dueling_DQN.py)
+
+https://arxiv.org/abs/1511.06581v3
 
 - Dueling DQN相较于原来的 DQN，唯一的差别是改了网络的架构。
 
@@ -50,7 +53,9 @@
 
 
 
-### 5. [DQN with Prioritized Experience Replay](https://arxiv.org/abs/1511.05952)
+### 5. [DQN with Prioritized Experience Replay](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/DQN_PER.py)
+
+https://arxiv.org/abs/1511.05952
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/c2d7edb57ca1407b8516f57cc540a025.png)
 
@@ -60,7 +65,7 @@
 
 
 
-### 6. [Noisy_DQN](https://arxiv.org/abs/1706.01905)
+### 6. [Noisy_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Noisy_DQN.py)
 
 https://arxiv.org/abs/1706.10295
 
@@ -78,7 +83,9 @@ DQN with noisy net的实现。
 
 
 
-### 7. [N_Step_DQN](https://arxiv.org/abs/1901.07510#:~:text=Multi-step%20methods%20such%20as%20Retrace%20%28%29%20and%20-step,to%20draw%20statistically%20significant%20conclusions%20about%20their%20performance.)
+### 7. [N_Step_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/N_Step_DQN.py)
+
+[论文。](https://arxiv.org/abs/1901.07510#:~:text=Multi-step%20methods%20such%20as%20Retrace%20%28%29%20and%20-step,to%20draw%20statistically%20significant%20conclusions%20about%20their%20performance.)
 
 *待实现。*
 
@@ -86,7 +93,9 @@ balance MC 跟 TD（即多步TD）。MC 跟 TD 的方法各自有优劣，怎么
 
 
 
-### 8. [Distributional_DQN](https://arxiv.org/pdf/1707.06887.pdf)
+### 8. [Distributional_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Distributional_DQN.py)
+
+https://arxiv.org/pdf/1707.06887.pdf
 
 - Distributional DQN，就是把DQN中的**value function**换成了**value distribution**。
 
@@ -104,10 +113,69 @@ balance MC 跟 TD（即多步TD）。MC 跟 TD 的方法各自有优劣，怎么
 
 
 
-### 9. Rainbow
+### 9. [Rainbow](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Rainbow.py)
 
 把刚才所有的方法(Nature DQN,Double_DQN,Dueling_DQN,Prioritized Experience Replay,Noisy_DQN,N_Step_DQN, Distributional_DQN)都综合起来就变成 rainbow 。因为刚才每一个方法，就是有一种自己的颜色，把所有的颜色通通都合起来，就变成 rainbow，它把原来的 DQN 也算是一种方法，故有 7 色。
 
 
 
 > N_Step_DQN暂未实现，所以先不加入改trick。Noisy_DQN加入后代码部分有问题，还为解决，所以先不加入。Distributional_DQN比较复杂，还不是很懂，所以暂时不加入。目前实现的Rainbow包含了：Nature DQN,Double_DQN,Dueling_DQN,Prioritized Experience Replay 等4种trick。
+
+
+
+
+
+### 10. 说明
+
+#### 1.程序运行：
+
+在已经安装好pytorch等库的前提下，进入`chhRL/chh_DQN/ `文件夹，打开终端，输入以下命令。
+
+- 训练：
+
+```bash
+python main.py --env_name CartPole-v0 --algo 算法名称 --train 
+```
+
+​	算法名称包括：
+
+```bash
+"Nature_DQN/Naive_DQN/DQN_PER/"
+"Double_DQN/Dueling_DQN/Noisy_DQN/"
+"Distributional_DQN/Rainbow"
+```
+
+​	例如：
+
+```bash
+main.py --env_name CartPole-v0  --algo Double_DQN --train 
+```
+
+​	如果需要在之前训练模型的基础上继续训练，则：
+
+```bash
+python main.py --env_name CartPole-v0 --algo 算法名称 --train --restore
+```
+
+- 测试
+
+  测试时，不要带train参数即可。
+
+```bash
+main.py --env_name CartPole-v0  --algo Double_DQN 
+```
+
+
+
+其他的一些超参数进入主函数[main.py](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/main.py)设置即可。
+
+#### 2.文件夹说明
+
+- `save`文件夹保存训练的模型、数据
+- `example_test`文件夹是使用CNN网络的DQN解决Atari游戏的例子，<u>实现还有问题</u>。
+- `module`文件夹是算法中用到的一些网络，将其抽取出来了，还有经验池、优先经验回放的设置、软更新、硬更新等。
+
+
+
+### 
+
