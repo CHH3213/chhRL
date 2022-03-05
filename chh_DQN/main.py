@@ -28,7 +28,10 @@ def parseSetting():
     parser.add_argument('--env_name', default="CartPole-v0",
                         help="environment name：CartPole-v0/CartPole-v1...")
     parser.add_argument('--algo', default="Double_DQN",
-                        help="algo choice：Nature_DQN/Naive_DQN/Double_DQN/Dueling_DQN")
+                        help="algo choice："
+                             "Nature_DQN/Naive_DQN/DQN_PER/"
+                             "Double_DQN/Dueling_DQN/Noisy_DQN/"
+                             "Distributional_DQN/Rainbow")
     """------------超参数设置------------------"""
     parser.add_argument('--lr', default=0.001, type=float, help="learning rate")
     parser.add_argument('--epsilon', default=0.1, type=float, help="epsilon greedy")
@@ -37,6 +40,7 @@ def parseSetting():
     parser.add_argument('--buffer_size', default=100000, type=int, help="size of replay buffer")
     parser.add_argument('--tau', default=0.1, type=float, help="soft update param")
     parser.add_argument('--hidden_dim', default=64, type=int, help="number of hidden layer")
+    parser.add_argument('--num_atoms', default=51, type=int, help="number of atoms of C51")
     parser.add_argument('--seed', default=1, type=int, help="seed of random")
     parser.add_argument('--episodes', default=200, type=int, help="")
     parser.add_argument('--steps', default=1000, type=int, help="")
@@ -167,15 +171,28 @@ def main(args):
         if args.algo == 'DQN_PER':
             # 优先经验回放参数
             hyperparameters = {
-                    "batch_size": args.batch_size,
-                    "buffer_size": args.buffer_size,
-                    "epsilon_decay_rate_denominator": 200,
-                    "alpha_prioritised_replay": 0.6,
-                    "beta_prioritised_replay": 0.4,
-                    "incremental_td_error": 1e-8,
+                "batch_size": args.batch_size,
+                "buffer_size": args.buffer_size,
+                "epsilon_decay_rate_denominator": 200,
+                "alpha_prioritised_replay": 0.6,
+                "beta_prioritised_replay": 0.4,
+                "incremental_td_error": 1e-8,
             }
             from DQN_PER import DQN
             agent = DQN(state_dim, action_dim, args, hyperparameters)
+        elif args.algo == 'Rainbow':
+            # 优先经验回放参数
+            hyperparameters = {
+                "batch_size": args.batch_size,
+                "buffer_size": args.buffer_size,
+                "epsilon_decay_rate_denominator": 200,
+                "alpha_prioritised_replay": 0.6,
+                "beta_prioritised_replay": 0.4,
+                "incremental_td_error": 1e-8,
+            }
+            from Rainbow import DQN
+            agent = DQN(state_dim, action_dim, args, hyperparameters)
+
         else:
             if args.algo == 'Nature_DQN':
                 from Nature_DQN import DQN
@@ -185,6 +202,12 @@ def main(args):
                 from Double_DQN import DQN
             elif args.algo == 'Dueling_DQN':
                 from Dueling_DQN import DQN
+            elif args.algo == 'Noisy_DQN':
+                from Noisy_DQN import DQN
+            elif args.algo == 'N_Step_DQN':
+                from N_Step_DQN import DQN
+            elif args.algo == 'Distributional_DQN':
+                from Distributional_DQN import DQN
             agent = DQN(state_dim, action_dim, args=args)
 
     print("=====================")

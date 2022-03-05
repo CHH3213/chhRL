@@ -107,7 +107,7 @@ class DQN:
         action_batch = torch.tensor(action_batch, device=self.device, dtype=torch.int64)
         next_state_batch = torch.tensor(next_state_batch, device=self.device, dtype=torch.float32)
         done_batch = torch.tensor(done_batch, device=self.device, dtype=torch.int64)
-
+        # print(np.shape(done_batch))
         # reward_batch = (reward_batch - reward_batch.mean()) / (reward_batch.std() + 1e-7)
         """========注意维度统一问题=========="""
         # print(np.shape(self.q_net(state_batch))) # [batch_size,2]

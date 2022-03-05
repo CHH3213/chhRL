@@ -2,32 +2,22 @@
 # --*--coding:utf-8--*--
 """
 ==========chhRL===============
-@File: DQN_PER.py
-@Time: 2022/3/4 上午11:44
+@File: Rainbow.py
+@Time: 2022/3/5 下午1:32
 @Author: chh3213
-@Description: 使用优先经验回放的 Nature DQN
+@Description: Rainbow算法
 ========Above the sun, full of fire!=============
 """
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from module.utils import hard_update, soft_update
 from module.prioritized_experience_replay.prioritized_experience_replay import Prioritized_Replay_Buffer
+from module.network import RainbowNet
 
 
-class Network(nn.Module):
-    def __init__(self, input_dim, output_dim, hidden_dim):
-        super(Network, self).__init__()
-        self.fc1 = nn.Linear(input_dim, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc3 = nn.Linear(hidden_dim, output_dim)
-
-    def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        out = self.fc3(x)
-        return out
 
 
 class DQN:
@@ -38,19 +28,19 @@ class DQN:
         self.gamma = args.gamma  # 奖励的折扣因子
         self.epsilon = args.epsilon  # 贪心策略
         self.tau = args.tau  # 软更新参数
+        self.param = param
+
         # 如果有gpu则使用gpu
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         # 经验池设置
         self.batch_size = args.batch_size
-        self.param = param
         self.replay_buffer = Prioritized_Replay_Buffer(self.param, args.seed)
-
         # q网络更新次数
         self.update_cnt = 0
         self.target_update_frequency = args.target_update_frequency  # 目标网络更新频率
         # 网络初始化
-        self.q_net = Network(self.s_dim, self.a_dim, args.hidden_dim).to(self.device)
-        self.target_q_net = Network(self.s_dim, self.a_dim, args.hidden_dim).to(self.device)
+        self.q_net = RainbowNet(self.s_dim, self.a_dim, args.hidden_dim).to(self.device)
+        self.target_q_net = RainbowNet(self.s_dim, self.a_dim, args.hidden_dim).to(self.device)
 
         hard_update(self.target_q_net, self.q_net)  # 硬更新方式
         # 声明优化器
@@ -99,36 +89,35 @@ class DQN:
             return
         self.update_cnt += 1
         state_batch, action_batch, reward_batch, next_state_batch, done_batch, importance_sampling_weights = self.replay_buffer.sample()
-        # print(np.shape(action_batch))
-        # print(np.shape(reward_batch))
-        # print(np.shape(next_state_batch))
-        # print(np.shape(next_state_batch))
-        # print(np.shape(done_batch))
-        # print(np.shape(importance_sampling_weights))
-        # 转为tensor,维度均统一为[batch_size]
+
+        # 转为tensor,维度均为[batch_size]
         state_batch = torch.tensor(state_batch, device=self.device, dtype=torch.float32).squeeze()
         reward_batch = torch.tensor(reward_batch, device=self.device, dtype=torch.float32).squeeze()
         # 注意action是int类型的离散变量
         action_batch = torch.tensor(action_batch, device=self.device, dtype=torch.int64).squeeze()
         next_state_batch = torch.tensor(next_state_batch, device=self.device, dtype=torch.float32).squeeze()
         done_batch = torch.tensor(done_batch, device=self.device, dtype=torch.int64).squeeze()
-
         # reward_batch = (reward_batch - reward_batch.mean()) / (reward_batch.std() + 1e-7)
         """========注意维度统一问题=========="""
-        # print(np.shape(self.q_net(state_batch))) # [batch_size,2]
-        # 将action_batch升高1维，维度变为[batch_size,1]
         action_batch = action_batch.unsqueeze(1)
-        # 计算Q(s,a)。 torch.gather函数:沿给定轴dim，将输入索引张量index指定位置的值进行聚合。
         q_values = torch.gather(input=self.q_net(state_batch), dim=1, index=action_batch)  # shape:[batch_size,1]
-        """Nature DQN 计算方式"""
-        # 求出max Q^(s',)，与伪代码一致
-        q_next_values = torch.max(self.target_q_net(next_state_batch), 1)[0].detach()  # shape:[batch_size]
-        q_target = reward_batch + self.gamma * q_next_values * (1 - done_batch)
-        """==================="""
+        """------Double DQN-----------
+        next_action是从Q_network计算出来的最大Q值的动作
+        但输出的目标Q值是target_Q_network中的next_action的Q值。
+        可以理解为：一个网络提议案，另外一个网络进行执行
+        即Q_target(s_t'|a=argmax Q(s_t‘, a))
+        """
+        _, next_action = torch.max(self.q_net(next_state_batch), 1)  # shape:[batch_size]
+        q_next_values = self.target_q_net(next_state_batch)  # shape:[batch_size,2]
+        q_target_next_values = torch.gather(input=q_next_values, dim=1,
+                                            index=next_action.unsqueeze(1)).detach().squeeze() # shape:[batch_size]
+        """-----------------------------------"""
+        q_target = reward_batch + self.gamma * q_target_next_values * (1 - done_batch)
         loss = nn.MSELoss()
         # print(np.shape(q_target))
+        # print(np.shape(q_values))
         # q_values维度为[batch_size,1]，减少1维与q_target保持一致，即shape变为[batch_size],这样才可对应计算loss
-        q_loss = loss(q_values.squeeze(), q_target) * importance_sampling_weights
+        q_loss = loss(q_values.squeeze_(), q_target) * importance_sampling_weights
         q_loss = torch.mean(q_loss)
         self.optimizer.zero_grad()
         q_loss.backward()

@@ -2,36 +2,26 @@
 # --*--coding:utf-8--*--
 """
 ==========chhRL===============
-@File: DQN_PER.py
-@Time: 2022/3/4 上午11:44
+@File: Noisy_DQN.py
+@Time: 2022/3/4 下午2:45
 @Author: chh3213
-@Description: 使用优先经验回放的 Nature DQN
+@Description:
 ========Above the sun, full of fire!=============
 """
+
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from module.utils import hard_update, soft_update
-from module.prioritized_experience_replay.prioritized_experience_replay import Prioritized_Replay_Buffer
+from module.replay_buffer import ReplayBuffer
+from module.network import NoisyNet
 
-
-class Network(nn.Module):
-    def __init__(self, input_dim, output_dim, hidden_dim):
-        super(Network, self).__init__()
-        self.fc1 = nn.Linear(input_dim, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc3 = nn.Linear(hidden_dim, output_dim)
-
-    def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        out = self.fc3(x)
-        return out
 
 
 class DQN:
-    def __init__(self, state_dim, action_dim, args, param):
+    def __init__(self, state_dim, action_dim, args):
         self.s_dim = state_dim
         self.a_dim = action_dim
         self.lr = args.lr  # 学习率
@@ -42,15 +32,13 @@ class DQN:
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         # 经验池设置
         self.batch_size = args.batch_size
-        self.param = param
-        self.replay_buffer = Prioritized_Replay_Buffer(self.param, args.seed)
-
+        self.replay_buffer = ReplayBuffer(args.buffer_size, args.seed)
         # q网络更新次数
         self.update_cnt = 0
         self.target_update_frequency = args.target_update_frequency  # 目标网络更新频率
         # 网络初始化
-        self.q_net = Network(self.s_dim, self.a_dim, args.hidden_dim).to(self.device)
-        self.target_q_net = Network(self.s_dim, self.a_dim, args.hidden_dim).to(self.device)
+        self.q_net = NoisyNet(self.s_dim, self.a_dim, args.hidden_dim).to(self.device)
+        self.target_q_net = NoisyNet(self.s_dim, self.a_dim, args.hidden_dim).to(self.device)
 
         hard_update(self.target_q_net, self.q_net)  # 硬更新方式
         # 声明优化器
@@ -98,20 +86,15 @@ class DQN:
         if len(self.replay_buffer) < self.batch_size:
             return
         self.update_cnt += 1
-        state_batch, action_batch, reward_batch, next_state_batch, done_batch, importance_sampling_weights = self.replay_buffer.sample()
-        # print(np.shape(action_batch))
-        # print(np.shape(reward_batch))
-        # print(np.shape(next_state_batch))
-        # print(np.shape(next_state_batch))
-        # print(np.shape(done_batch))
-        # print(np.shape(importance_sampling_weights))
-        # 转为tensor,维度均统一为[batch_size]
-        state_batch = torch.tensor(state_batch, device=self.device, dtype=torch.float32).squeeze()
-        reward_batch = torch.tensor(reward_batch, device=self.device, dtype=torch.float32).squeeze()
+        state_batch, action_batch, reward_batch, next_state_batch, done_batch = self.replay_buffer.sample(
+            self.batch_size)
+        # 转为tensor,维度均为[batch_size]
+        state_batch = torch.tensor(state_batch, device=self.device, dtype=torch.float32)
+        reward_batch = torch.tensor(reward_batch, device=self.device, dtype=torch.float32)
         # 注意action是int类型的离散变量
-        action_batch = torch.tensor(action_batch, device=self.device, dtype=torch.int64).squeeze()
-        next_state_batch = torch.tensor(next_state_batch, device=self.device, dtype=torch.float32).squeeze()
-        done_batch = torch.tensor(done_batch, device=self.device, dtype=torch.int64).squeeze()
+        action_batch = torch.tensor(action_batch, device=self.device, dtype=torch.int64)
+        next_state_batch = torch.tensor(next_state_batch, device=self.device, dtype=torch.float32)
+        done_batch = torch.tensor(done_batch, device=self.device, dtype=torch.int64)
 
         # reward_batch = (reward_batch - reward_batch.mean()) / (reward_batch.std() + 1e-7)
         """========注意维度统一问题=========="""
@@ -128,14 +111,12 @@ class DQN:
         loss = nn.MSELoss()
         # print(np.shape(q_target))
         # q_values维度为[batch_size,1]，减少1维与q_target保持一致，即shape变为[batch_size],这样才可对应计算loss
-        q_loss = loss(q_values.squeeze(), q_target) * importance_sampling_weights
-        q_loss = torch.mean(q_loss)
+        q_loss = loss(q_values.squeeze(), q_target)
         self.optimizer.zero_grad()
         q_loss.backward()
         self.optimizer.step()
-        td_error = q_target.detach().cpu().numpy() - q_values.squeeze().detach().cpu().numpy()
-        self.replay_buffer.update_td_errors(td_error)
-        if self.update_cnt % self.target_update_frequency == 0:
+
+        if self.update_cnt%self.target_update_frequency==0:
             # 硬更新
             # hard_update(self.target_q_net, self.q_net)
             # 软更新
@@ -148,3 +129,4 @@ class DQN:
     def load(self, path):
         self.q_net.load_state_dict(torch.load(path + 'q_net.pt'))
         self.target_q_net.load_state_dict(torch.load(path + 'target_q_net.pt'))
+

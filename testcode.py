@@ -16,24 +16,23 @@ from torch import nn
 import torch.nn.functional as F
 from torch import optim
 
-
-class Net(nn.Module):
-    def __init__(self):
-        super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(3, 6, 5)
-        self.conv2 = nn.Conv2d(6, 16, 5)
-        self.fc1 = nn.Linear(16 * 5 * 5, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 10)
-
-    def forward(self, x):
-        x = F.max_pool2d(F.relu(self.conv1(x)), (2, 2))
-        x = F.max_pool2d(F.relu(self.conv2(x)), 2)
-        x = x.view(-1, 16 * 5 * 5)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
+# class Net(nn.Module):
+#     def __init__(self):
+#         super(Net, self).__init__()
+#         self.conv1 = nn.Conv2d(3, 6, 5)
+#         self.conv2 = nn.Conv2d(6, 16, 5)
+#         self.fc1 = nn.Linear(16 * 5 * 5, 120)
+#         self.fc2 = nn.Linear(120, 84)
+#         self.fc3 = nn.Linear(84, 10)
+#
+#     def forward(self, x):
+#         x = F.max_pool2d(F.relu(self.conv1(x)), (2, 2))
+#         x = F.max_pool2d(F.relu(self.conv2(x)), 2)
+#         x = x.view(-1, 16 * 5 * 5)
+#         x = F.relu(self.fc1(x))
+#         x = F.relu(self.fc2(x))
+#         x = self.fc3(x)
+#         return x
 
 
 # net = Net()
@@ -81,7 +80,7 @@ class Net(nn.Module):
 # print(rewards)
 
 
-a = torch.tensor([[[3, 5], [2, 3], [6, 7]]])
+# a = torch.tensor([[[3, 5], [2, 3], [6, 7]]])
 # print(a)
 # print(np.shape(a))
 # a = torch.unsqueeze(a, 0)
@@ -105,8 +104,129 @@ a = torch.tensor([[[3, 5], [2, 3], [6, 7]]])
 # print(1-done)
 
 
-'测试torch.gather'
-a = torch.Tensor([[1,2],[3,4]])
-print(a)
-a = torch.gather(a,1,index=torch.tensor([[0],[1]]))
-print(a)
+# '测试torch.gather'
+# a = torch.Tensor([[1,2],[3,4]])
+# print(a)
+# a = torch.gather(a,1,index=torch.tensor([[0],[1]]))
+# print(a)
+
+# import random
+# finish = random.randint(2,10)
+# print(finish)
+
+# 假设是时间步T1
+T1 = torch.tensor([[1, 2, 3],
+                   [4, 5, 6],
+                   [7, 8, 9]])
+# 假设是时间步T2
+T2 = torch.tensor([[10, 20, 30],
+                   [40, 50, 60],
+                   [70, 80, 90]])
+
+print(torch.stack((T1, T2)).shape)
+
+
+# print(torch.stack((T1, T2), dim=1).shape)
+# print(torch.stack((T1, T2), dim=2).shape)
+
+
+class Net1:
+    def __init__(self, input_dim=16, output_dim=1, hidden1_dim=64, hidden2_dim=32):
+        # 随机产生一些随机特征
+        features = torch.randn(1, input_dim)
+        # 构建权重
+        w1 = torch.randn((input_dim, hidden1_dim), requires_grad=True)
+        w2 = torch.randn((hidden1_dim, hidden1_dim), requires_grad=True)
+        w3 = torch.randn((hidden1_dim, hidden2_dim), requires_grad=True)
+        w4 = torch.randn((hidden2_dim, output_dim), requires_grad=True)
+        # 构建偏置
+        b1 = torch.randn((hidden1_dim), requires_grad=True)
+        b2 = torch.randn((hidden1_dim), requires_grad=True)
+        b3 = torch.randn((hidden2_dim), requires_grad=True)
+        b4 = torch.randn((output_dim), requires_grad=True)
+
+        # 构造隐藏层和输出层
+        h1 = F.relu((features @ w1) + b1)
+        h2 = F.relu((h1 @ w2) + b2)
+        h3 = F.relu((h2 @ w3) + b3)
+        out = F.sigmoid((h3 @ w4) + b4)
+
+
+class Net2(nn.Module):
+    def __init__(self, input_dim=16, output_dim=1, hidden1_dim=64, hidden2_dim=32):
+        super(Net2, self).__init__()
+        self.fc1 = nn.Linear(input_dim, hidden1_dim)
+        self.fc2 = nn.Linear(hidden1_dim, hidden1_dim)
+        self.fc3 = nn.Linear(hidden1_dim, hidden2_dim)
+        self.fc4 = nn.Linear(hidden2_dim, output_dim)
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        out = F.sigmoid(self.fc4(x))
+        return out
+
+
+# model = Net2()
+# print(model)
+# # 检查权重示例
+# print(model.fc2.weight)
+
+input_dim=16
+output_dim=1
+hidden1_dim=64
+hidden2_dim=32
+model = nn.Sequential(
+    nn.Linear(input_dim, hidden1_dim),
+    nn.ReLU(),
+    nn.Linear(hidden1_dim, hidden1_dim),
+    nn.ReLU(),
+    nn.Linear(hidden1_dim, hidden2_dim),
+    nn.ReLU(),
+    nn.Linear(hidden2_dim, output_dim),
+    nn.Sigmoid()
+)
+print(model)
+print(model[0].weight)
+
+
+from collections import OrderedDict
+
+
+model = nn.Sequential(OrderedDict([
+    ('fc1', nn.Linear(input_dim, hidden1_dim)),
+    ('relu1', nn.ReLU()),
+    ('fc2', nn.Linear(hidden1_dim, hidden1_dim)),
+    ('relu2', nn.ReLU()),
+    ('fc3', nn.Linear(hidden1_dim, hidden2_dim)),
+    ('relu3', nn.ReLU()),
+    ('fc4', nn.Linear(hidden2_dim, output_dim)),
+    ('sigmoid', nn.Sigmoid())
+])
+)
+print(model)
+print(model.fc2.weight)
+
+
+
+
+class Net4(nn.Module):
+    def __init__(self, input_dim=16, output_dim=1, hidden1_dim=64, hidden2_dim=32):
+        super(Net4, self).__init__()
+        self.layers = nn.Sequential(OrderedDict([
+            ('fc1', nn.Linear(input_dim, hidden1_dim)),
+            ('relu1', nn.ReLU()),
+            ('fc2', nn.Linear(hidden1_dim, hidden1_dim)),
+            ('relu2', nn.ReLU()),
+            ('fc3', nn.Linear(hidden1_dim, hidden2_dim)),
+            ('relu3', nn.ReLU()),
+            ('fc4', nn.Linear(hidden2_dim, output_dim)),
+        ])
+        )
+
+    def forward(self, x):
+        out = F.sigmoid(self.layers(x))
+        return out
+model4 = Net4()
+print(model4)

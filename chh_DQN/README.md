@@ -1,7 +1,9 @@
 # DQN
-DQN 使用深度神经网络近似拟合状态动作值函数Q(s,a).
+- DQN 使用深度神经网络近似拟合状态动作值函数Q(s,a).
 
+- 在DQN中，网络的输入是 ![[公式]](https://www.zhihu.com/equation?tex=s+) ，输出是一个向量 ![[公式]](https://www.zhihu.com/equation?tex=%28Q%28s%2Ca_1%29%2CQ%28s%2Ca_2%29%2C%5Ccdots+%2CQ%28s%2Ca_m%29%29)
 
+- 博客参考：https://blog.csdn.net/weixin_42301220/article/details/123221485#t9
 
 
 
@@ -19,8 +21,7 @@ DQN 使用深度神经网络近似拟合状态动作值函数Q(s,a).
   $$y=r_{i}+\max _{a} \hat{Q}\left(s_{i+1}, a\right) $$
 - 其中 a 就是让$\hat{Q}$的值最大的 a。接下来我们要更新 Q 值，那就把它当作一个回归问题，希望 $Q(s_i,a_i)$ 跟你的目标越接近越好。然后假设已经更新了某一个数量的次，比如说 C 次，设 C = 100， 那你就把 $\hat{Q}$设成 Q，这就是 DQN。
 
-### 2.1 DQN_CNN
-使用CNN网络而不是用MLP网络来解决gym环境的问题。实现的算法依旧是Nature DQN。
+
 
 ## 3. [Double_DQN](https://arxiv.org/pdf/1509.06461.pdf)
 
@@ -49,12 +50,64 @@ DQN 使用深度神经网络近似拟合状态动作值函数Q(s,a).
 
 
 
-### 5. DQN with Prioritized Experience Replay
+### 5. [DQN with Prioritized Experience Replay](https://arxiv.org/abs/1511.05952)
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/c2d7edb57ca1407b8516f57cc540a025.png)
 
 
 - 原来在 `sample` 数据去训练 `Q-network` 的时候，我们是均匀地从 `experience buffer` 里面去 `sample` 数据。那这样不见得是最好的， 因为也许有一些数据比较重要。假设有一些数据，之前有 sample 过，发现这些数据的 **TD error 特别大**（TD error 就是网络的输出跟目标之间的差距），**那这些数据代表在训练网络的时候， 训练是比较不好的**。既然比较训练不好， 那就应该给它比较大的概率被 `sample` 到，即给它 `priority`，这样在训练的时候才会多考虑那些训练不好的训练数据。实际上在做 `prioritized experience replay` 的时候，你不仅会更改 `sampling` 的 process，你还会更改更新参数的方法。所以 **`prioritized experience replay` 不仅改变了 sample 数据的分布，还改变了训练过程。**
+- 具体讲解可参考：https://blog.csdn.net/hehedadaq/article/details/100127962
 
 
 
+### 6. [Noisy_DQN](https://arxiv.org/abs/1706.01905)
+
+https://arxiv.org/abs/1706.10295
+
+https://arxiv.org/abs/1706.01905
+
+DQN with noisy net的实现。
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/a9fec14266a04fa8b5d566be5e2871ca.png)
+
+- `Epsilon Greedy` 的探索是在动作的空间上面加噪声，但是有一个更好的方法叫做`Noisy Net`，**它是在参数的空间上面加噪声。**
+- Noisy Net 的意思是说，每一次在一个 episode 开始的时候，在跟环境互动的时候，在Q网络的每一个参数上面加上一个高斯噪声(Gaussian noise)，那就把原来的 Q-function 变成 $\tilde{Q}$ ，就得到一个新的网络叫做 $\tilde{Q}$。
+- 这边要注意在每个 episode 开始的时候，开始跟环境互动之前，我们就 sample 网络。接下来用这个固定住的 noisy网络去玩这个游戏，**直到游戏结束，才重新再去 sample 新的噪声**。
+
+
+
+
+
+### 7. [N_Step_DQN](https://arxiv.org/abs/1901.07510#:~:text=Multi-step%20methods%20such%20as%20Retrace%20%28%29%20and%20-step,to%20draw%20statistically%20significant%20conclusions%20about%20their%20performance.)
+
+*待实现。*
+
+balance MC 跟 TD（即多步TD）。MC 跟 TD 的方法各自有优劣，怎么在 MC 跟 TD 里面取得一个平衡呢？我们可以不要只存一个步骤的数据，我们存 N 个步骤的数据。
+
+
+
+### 8. [Distributional_DQN](https://arxiv.org/pdf/1707.06887.pdf)
+
+- Distributional DQN，就是把DQN中的**value function**换成了**value distribution**。
+
+- 原来的DQN中的值函数是 ![[公式]](https://www.zhihu.com/equation?tex=Q%28s%2Ca%29) ，它是 ![[公式]](https://www.zhihu.com/equation?tex=%5Cmathbb+R%5E%7Bn%7D+%5Ctimes+%5Cmathbb+R%5E%7Bm%7D+%5Crightarrow%5Cmathbb++R) 的函数，也就和说，它接受一个 ![[公式]](https://www.zhihu.com/equation?tex=s%2Ca) ，输出一个实数，这个实数就是这个状态动作对 ![[公式]](https://www.zhihu.com/equation?tex=a%2Cs) 的评估。
+
+- Distributional DQN中的**值分布**，它接受一个 ![[公式]](https://www.zhihu.com/equation?tex=s%2Ca) ，输出一个**分布**，这个分布描绘了状态动作对 ![[公式]](https://www.zhihu.com/equation?tex=a%2Cs) 的**所有取值的可能性**。
+
+- 简单来说，**值函数可以看作值分布的期望**。
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/17a80fb890d34bd79029e633f8a15105.png)
+
+表示分布当然有很多方法，高斯分布这种参数化的方法，因为它是**单峰**的，所以不使用。
+
+我们希望能实现**多个峰值**的值分布，从而学习到更好的结果。有作者们提出了一个叫做C51的算法，它用51个等间距的atoms描绘一个分布。具体可参考博客：[Distributional DQN: C51](https://zhuanlan.zhihu.com/p/137935717#:~:text=%E6%89%80%E8%B0%93%E7%9A%84Distributional%20DQN%EF%BC%8C%E5%B0%B1%E6%98%AF%E6%8A%8A%E4%BC%A0%E7%BB%9FDQN%E4%B8%AD%E7%9A%84%20value%20function%20%E6%8D%A2%E6%88%90%E4%BA%86%20value,distribution%20%E3%80%82%20%E5%8E%9F%E6%9D%A5%E7%9A%84DQN%E4%B8%AD%E7%9A%84%E5%80%BC%E5%87%BD%E6%95%B0%E6%98%AF%20%EF%BC%8C%E5%AE%83%E6%98%AF%20%E7%9A%84%E5%87%BD%E6%95%B0%EF%BC%8C%E4%B9%9F%E5%B0%B1%E5%92%8C%E8%AF%B4%EF%BC%8C%E5%AE%83%E6%8E%A5%E5%8F%97%E4%B8%80%E4%B8%AA%20%EF%BC%8C%E8%BE%93%E5%87%BA%E4%B8%80%E4%B8%AA%E5%AE%9E%E6%95%B0%EF%BC%8C%E8%BF%99%E4%B8%AA%E5%AE%9E%E6%95%B0%E5%B0%B1%E6%98%AF%E8%BF%99%E4%B8%AA%E7%8A%B6%E6%80%81%E5%8A%A8%E4%BD%9C%E5%AF%B9%20%E7%9A%84%E8%AF%84%E4%BC%B0%E3%80%82)
+
+
+
+### 9. Rainbow
+
+把刚才所有的方法(Nature DQN,Double_DQN,Dueling_DQN,Prioritized Experience Replay,Noisy_DQN,N_Step_DQN, Distributional_DQN)都综合起来就变成 rainbow 。因为刚才每一个方法，就是有一种自己的颜色，把所有的颜色通通都合起来，就变成 rainbow，它把原来的 DQN 也算是一种方法，故有 7 色。
+
+
+
+> N_Step_DQN暂未实现，所以先不加入改trick。Noisy_DQN加入后代码部分有问题，还为解决，所以先不加入。Distributional_DQN比较复杂，还不是很懂，所以暂时不加入。目前实现的Rainbow包含了：Nature DQN,Double_DQN,Dueling_DQN,Prioritized Experience Replay 等4种trick。
