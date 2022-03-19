@@ -163,7 +163,7 @@ python main.py --env_name CartPole-v0 --algo 算法名称 --train --restore
   测试时，不要带train参数即可。
 
 ```bash
-main.py --env_name CartPole-v0  --algo Double_DQN 
+python main.py --env_name CartPole-v0  --algo Double_DQN 
 ```
 
 
