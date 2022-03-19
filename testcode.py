@@ -172,61 +172,65 @@ class Net2(nn.Module):
 # print(model)
 # # 检查权重示例
 # print(model.fc2.weight)
+#
+# input_dim=16
+# output_dim=1
+# hidden1_dim=64
+# hidden2_dim=32
+# model = nn.Sequential(
+#     nn.Linear(input_dim, hidden1_dim),
+#     nn.ReLU(),
+#     nn.Linear(hidden1_dim, hidden1_dim),
+#     nn.ReLU(),
+#     nn.Linear(hidden1_dim, hidden2_dim),
+#     nn.ReLU(),
+#     nn.Linear(hidden2_dim, output_dim),
+#     nn.Sigmoid()
+# )
+# print(model)
+# print(model[0].weight)
+#
+#
+# from collections import OrderedDict
+#
+#
+# model = nn.Sequential(OrderedDict([
+#     ('fc1', nn.Linear(input_dim, hidden1_dim)),
+#     ('relu1', nn.ReLU()),
+#     ('fc2', nn.Linear(hidden1_dim, hidden1_dim)),
+#     ('relu2', nn.ReLU()),
+#     ('fc3', nn.Linear(hidden1_dim, hidden2_dim)),
+#     ('relu3', nn.ReLU()),
+#     ('fc4', nn.Linear(hidden2_dim, output_dim)),
+#     ('sigmoid', nn.Sigmoid())
+# ])
+# )
+# print(model)
+# print(model.fc2.weight)
+#
+#
+#
+#
+# class Net4(nn.Module):
+#     def __init__(self, input_dim=16, output_dim=1, hidden1_dim=64, hidden2_dim=32):
+#         super(Net4, self).__init__()
+#         self.layers = nn.Sequential(OrderedDict([
+#             ('fc1', nn.Linear(input_dim, hidden1_dim)),
+#             ('relu1', nn.ReLU()),
+#             ('fc2', nn.Linear(hidden1_dim, hidden1_dim)),
+#             ('relu2', nn.ReLU()),
+#             ('fc3', nn.Linear(hidden1_dim, hidden2_dim)),
+#             ('relu3', nn.ReLU()),
+#             ('fc4', nn.Linear(hidden2_dim, output_dim)),
+#         ])
+#         )
+#
+#     def forward(self, x):
+#         out = F.sigmoid(self.layers(x))
+#         return out
+# model4 = Net4()
+# print(model4)
 
-input_dim=16
-output_dim=1
-hidden1_dim=64
-hidden2_dim=32
-model = nn.Sequential(
-    nn.Linear(input_dim, hidden1_dim),
-    nn.ReLU(),
-    nn.Linear(hidden1_dim, hidden1_dim),
-    nn.ReLU(),
-    nn.Linear(hidden1_dim, hidden2_dim),
-    nn.ReLU(),
-    nn.Linear(hidden2_dim, output_dim),
-    nn.Sigmoid()
-)
-print(model)
-print(model[0].weight)
 
-
-from collections import OrderedDict
-
-
-model = nn.Sequential(OrderedDict([
-    ('fc1', nn.Linear(input_dim, hidden1_dim)),
-    ('relu1', nn.ReLU()),
-    ('fc2', nn.Linear(hidden1_dim, hidden1_dim)),
-    ('relu2', nn.ReLU()),
-    ('fc3', nn.Linear(hidden1_dim, hidden2_dim)),
-    ('relu3', nn.ReLU()),
-    ('fc4', nn.Linear(hidden2_dim, output_dim)),
-    ('sigmoid', nn.Sigmoid())
-])
-)
-print(model)
-print(model.fc2.weight)
-
-
-
-
-class Net4(nn.Module):
-    def __init__(self, input_dim=16, output_dim=1, hidden1_dim=64, hidden2_dim=32):
-        super(Net4, self).__init__()
-        self.layers = nn.Sequential(OrderedDict([
-            ('fc1', nn.Linear(input_dim, hidden1_dim)),
-            ('relu1', nn.ReLU()),
-            ('fc2', nn.Linear(hidden1_dim, hidden1_dim)),
-            ('relu2', nn.ReLU()),
-            ('fc3', nn.Linear(hidden1_dim, hidden2_dim)),
-            ('relu3', nn.ReLU()),
-            ('fc4', nn.Linear(hidden2_dim, output_dim)),
-        ])
-        )
-
-    def forward(self, x):
-        out = F.sigmoid(self.layers(x))
-        return out
-model4 = Net4()
-print(model4)
+import torch
+print(torch.cuda.is_available())
