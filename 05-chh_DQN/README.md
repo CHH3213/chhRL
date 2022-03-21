@@ -135,7 +135,7 @@ https://arxiv.org/pdf/1707.06887.pdf
 - 训练：
 
 ```bash
-python main.py --env_name CartPole-v0 --algo 算法名称 --train 
+python main_ddpg.py --env_name CartPole-v0 --algo 算法名称 --train 
 ```
 
 ​	算法名称包括：
@@ -149,13 +149,13 @@ python main.py --env_name CartPole-v0 --algo 算法名称 --train
 ​	例如：
 
 ```bash
-main.py --env_name CartPole-v0  --algo Double_DQN --train 
+main_ddpg.py --env_name CartPole-v0  --algo Double_DQN --train 
 ```
 
 ​	如果需要在之前训练模型的基础上继续训练，则：
 
 ```bash
-python main.py --env_name CartPole-v0 --algo 算法名称 --train --restore
+python main_ddpg.py --env_name CartPole-v0 --algo 算法名称 --train --restore
 ```
 
 - 测试
@@ -163,7 +163,7 @@ python main.py --env_name CartPole-v0 --algo 算法名称 --train --restore
   测试时，不要带train参数即可。
 
 ```bash
-python main.py --env_name CartPole-v0  --algo Double_DQN 
+python main_ddpg.py --env_name CartPole-v0  --algo Double_DQN 
 ```
 
 

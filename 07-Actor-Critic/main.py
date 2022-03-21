@@ -3,7 +3,7 @@
 Created with IntelliJ PyCharm.
 @Time: 2022/3/20 14:29
 @PROJECT_NAME: chhRL
-@File: main.py
+@File: main_ddpg.py
 @Author: chh3213
 @Email:
 @Description:
