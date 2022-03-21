@@ -2,8 +2,9 @@
 
 论文：
 http://proceedings.mlr.press/v32/silver14.pdf
+
 https://arxiv.org/abs/1509.02971
-Continuous Control With Deep Reinforcement Learning, Lillicrap et al. 2016
+
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/129e4a87c7b64991bebe6e849b94e5ed.png)
 
