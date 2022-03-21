@@ -15,23 +15,23 @@ Advantage Actor-Critic
 ## 代码运行
 - 运行main.py,选择算法（AC，A2C），开始训练
     ```shell
-    python main_ddpg.py --algo [algo_name] --train 
+    python main.py --algo [algo_name] --train 
     ```
     例如：
     ```shell
-    python main_ddpg.py --algo A2C --train 
+    python main.py --algo A2C --train 
     ```
 - 如果想要接着上次的训练，则再加上`--restore`
     ```shell
-    python main_ddpg.py --algo [algo_name] --train --restore 
+    python main.py --algo [algo_name] --train --restore 
     ```
 - 测试
     ```shell
-    python main_ddpg.py --algo [algo_name] 
+    python main.py --algo [algo_name] 
     ```
     例如：
     ```shell
-    python main_ddpg.py --algo A2C 
+    python main.py --algo A2C 
     ```
 
 TODO:
