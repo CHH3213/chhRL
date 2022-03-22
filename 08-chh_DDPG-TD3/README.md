@@ -43,6 +43,12 @@ https://arxiv.org/abs/1509.02971
     ```shell
     python main_ddpg.py --algo ddpg 
     ```
+- tensorboard面板查看:
+    终端输入：
+    ```shell
+     tensorboard --logdir=save/data/Pendulum-v0/ddpg/logs
+    ```
+  终端运行后，在浏览器中输入：http://localhost:6006/即可。
 
 ## Twin Delayed Deep Deterministic Policy Gradients (TD3)
 
