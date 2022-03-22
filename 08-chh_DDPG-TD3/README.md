@@ -31,7 +31,7 @@ https://arxiv.org/abs/1509.02971
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/4210b5a76e4840b394ab9894283138cd.png)
 
 ### 代码运行
-- 运行main_ddpg.py,选择算法（ddpg或者td3），开始训练
+- 运行main_ddpg.py,选择算法ddpg，开始训练
     ```shell
     python main_ddpg.py --algo ddpg --train 
     ```
@@ -56,7 +56,7 @@ https://arxiv.org/abs/1509.02971
 
 
 ### 代码运行
-- 运行main_td3.py,选择算法（ddpg或者td3），开始训练
+- 运行main_td3.py,选择算法td3，开始训练
     ```shell
     python main_td3.py --algo td3 --train 
     ```
