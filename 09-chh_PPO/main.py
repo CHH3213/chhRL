@@ -44,8 +44,8 @@ def parseSetting():
 
     # ppo参数设置
     # 一次更新多少次actor和critic
-    parser.add_argument('--actor_update_steps', type=int, default=5)
-    parser.add_argument('--critic_update_steps', type=int, default=5)
+    parser.add_argument('--actor_update_steps', type=int, default=10)
+    parser.add_argument('--critic_update_steps', type=int, default=10)
     parser.add_argument('--policy_clip', type=float, default=0.2, help="ppo2,clip")
     parser.add_argument('--beta', type=float, default=0.5, help="ppo1:KL divergence efficient")
     parser.add_argument('--delta', type=float, default=1., help="ppo1:KL divergence efficient")
