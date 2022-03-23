@@ -27,10 +27,10 @@ def parseSetting():
     :return:
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env_name', default="Pendulum-v0",
+    parser.add_argument('--env_name', default="CartPole-v0",
                         help="environment name：Pendulum-v0,CartPole-v0")
     parser.add_argument('--algo', default="ppo_penalty",
-                        help="algo choice：ppo_penalty")
+                        help="algo choice：ppo_penalty,ppo_clip")
     # 学习参数设置
     parser.add_argument('--lr_actor', default=0.0001, type=float, help="learning rate of actor network")
     parser.add_argument('--lr_critic', default=0.001, type=float, help="learning rate of critic network")
@@ -44,9 +44,11 @@ def parseSetting():
 
     # ppo参数设置
     # 一次更新多少次actor和critic
-    parser.add_argument('--actor_update_steps', type=int, default=1)
-    parser.add_argument('--critic_update_steps', type=int, default=1)
-    parser.add_argument('--policy_clip', type=float, default=0.2)
+    parser.add_argument('--actor_update_steps', type=int, default=5)
+    parser.add_argument('--critic_update_steps', type=int, default=5)
+    parser.add_argument('--policy_clip', type=float, default=0.2, help="ppo2,clip")
+    parser.add_argument('--beta', type=float, default=0.5, help="ppo1:KL divergence efficient")
+    parser.add_argument('--delta', type=float, default=1., help="ppo1:KL divergence efficient")
 
     # 数据保存
     parser.add_argument('--test_episode', default=10, type=int, help="")
@@ -58,7 +60,7 @@ def parseSetting():
                         help="where to store/load network weights")
     parser.add_argument('--load_dir', default='./save/models/',
                         help="where to load network weights")
-    parser.add_argument('--checkpoint_frequency', default=50, type=int,
+    parser.add_argument('--checkpoint_frequency', default=20, type=int,
                         help="how often to checkpoint")
     parser.add_argument('--train', default=False, action="store_true",
                         help="train begin if true")
@@ -172,7 +174,7 @@ def main(args):
         s_dim = env.observation_space.shape[0]
         a_dim = env.action_space.n
         max_action = 1
-
+    print('max_action:', max_action)
     print("agent action_dim:", a_dim)
     print("agent state_dim:", s_dim)
     from PPO_Penalty import PPO

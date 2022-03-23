@@ -26,3 +26,32 @@ Openai Baselines 博客: https://blog.openai.com/openai-baselines-ppo/
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/49a31026289c4a2faa9ec0321dae7973.png)
 
 ![图片](https://user-images.githubusercontent.com/62095277/156288779-cbd6a867-afd5-433a-8b12-aae1536f61a6.png)
+
+
+
+## 代码实现
+- 运行主函数main.py，开始训练或测试
+    ```shell
+    python main.py --algo [algo_name]  --env_name [env_name] --train
+    ```
+  algo_name可选：ppo_penalty，ppo_clip.目前ppo_penalty只实现在离散环境即CartPole-v0中。
+
+  env_name可选：Pendulum-v0,CartPole-v0。其中，Pendulum-v0为连续动作环境，CartPole-v0为离散动作环境。
+
+  如：
+    ```shell
+    python main.py --algo ppo_penalty  --env_name CartPole-v0 --train
+    ```
+- 如果想要接着上次的训练，则再加上`--restore`
+    ```shell
+    python main.py --algo ppo_penalty  --env_name CartPole-v0 --train --restore
+    ```
+- 训练完后测试：将`--train`去除即可。
+  
+  如：
+    ```shell
+    python main.py --algo ppo_penalty  --env_name CartPole-v0 
+    ```
+  
+
+  目前在连续环境下，PPO的效果还没出来，需要后期再调试。

@@ -13,9 +13,10 @@ import copy
 import numpy as np
 import torch
 from torch import nn
+import torch.nn.functional as F
 from torch.distributions import Normal
 from torch.distributions.categorical import Categorical
-from module.utils import soft_update,hard_update
+from module.utils import soft_update, hard_update
 from module.network import Critic, Actor_discrete, Actor_continue, V_Net
 from module.replay_buffer import ReplayBuffer
 
@@ -61,7 +62,6 @@ class PPO:
             action = dist.sample()
             return np.clip(action.detach().cpu().numpy(), -self.max_action, self.max_action)
 
-
     def update(self):
         """
         update actor，critic
@@ -92,17 +92,18 @@ class PPO:
         """计算优势函数"""
         v = self.critic(state).squeeze()  # shape:[batch_size]
         advantage = (target - v).detach()  # shape:[batch_size]
+        advantage = (advantage - advantage.mean()) / (advantage.std() + 1e-8)  # 做了这一步效果更好
         """actor和critic更新"""
         for _ in range(self.args.actor_update_steps):
             self._actor_learn(state, action, advantage)
         for _ in range(self.args.critic_update_steps):
             v = self.critic(state).squeeze()  # shape:[batch_size]
-            self._critic_learn(v, target)
-
+            self._critic_learn(v, target.detach())
+            # self._critic_learn(v, target)
 
     def _actor_learn(self, state, action, advantage):
         """
-        actor 更新
+        actor 更新,注意detach()需不需要加的问题
         :param state: state batch
         :param action:  action batch
         :param advantage: 优势batch
@@ -118,15 +119,28 @@ class PPO:
             pi = Normal(mu, sigma)
             old_mu, old_sigma = self.actor_old(state)
             old_pi = Normal(old_mu, old_sigma)
-        ratio = (torch.exp(pi.log_prob(action) - old_pi.log_prob(action))).squeeze()
-        # print(np.shape(ratio))
-        weighted_probs = ratio * advantage
-        # print(np.shape(advantage))
-        # print(np.shape(weighted_probs))
-        weighted_clipped_probs = torch.clamp(ratio, 1 - self.args.policy_clip,
-                                             1 + self.args.policy_clip) * advantage
-        # print(np.shape(weighted_clipped_probs))
-        loss = -torch.min(weighted_probs, weighted_clipped_probs).mean()
+        ratio = (torch.exp(pi.log_prob(action) - old_pi.log_prob(action).detach()))  # 计算方式1
+        # 除以(oldpi.prob(tfa) + EPS)，其实就是做了import-sampling。
+        # ratio = torch.exp(pi.log_prob(action)) / (torch.exp(old_pi.log_prob(action).detach())+ 1e-8)  # 计算方式2
+        "*************ppo-penalty(ppo1)处理技巧*********"
+        if self.args.algo == "ppo_penalty" and self.is_discrete:
+            weighted_probs = ratio * advantage.detach()
+            weighted_kl_probs = self.args.beta * F.kl_div(a_prob, old_a_prob, reduction='batchmean')
+            loss = - (weighted_probs - weighted_kl_probs).mean()
+            # KL-Divergence update
+            DL = F.kl_div(input=a_prob, target=old_a_prob, reduction='batchmean')
+            if DL >= 1.5 * self.args.delta:
+                self.args.beta *= 2
+            if DL <= self.args.delta / 1.5:
+                self.args.beta *= 0.5
+            "******************************************"
+        else:
+            "============ppo-clip(ppo2)处理技巧=========="
+            weighted_probs = ratio * advantage.detach()
+            weighted_clipped_probs = torch.clamp(ratio, 1 - self.args.policy_clip,
+                                                 1 + self.args.policy_clip) * advantage.detach()
+            loss = -torch.min(weighted_probs, weighted_clipped_probs).mean()
+            "============================================"
         self.actor_optimizer.zero_grad()
         loss.backward()
         self.actor_optimizer.step()
@@ -135,7 +149,7 @@ class PPO:
         """
         critic 更新
         :param v: 价值函数v batch
-        :param target: td target batch
+        :param target:  target batch
         :return:
         """
         loss = nn.MSELoss()

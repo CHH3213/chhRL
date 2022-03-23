@@ -19,6 +19,9 @@ import math
 
 
 class Actor_discrete(nn.Module):
+    """
+    离散动作所用actor，输出分布
+    """
     def __init__(self, state_dim, action_dim, hidden_dim):
         super(Actor_discrete, self).__init__()
         self.fc1 = nn.Linear(state_dim, hidden_dim)
@@ -47,7 +50,7 @@ class Actor_continue(nn.Module):
         self.fc1 = nn.Linear(state_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, hidden_dim)
         self.mu = nn.Linear(hidden_dim, action_dim)
-        self.sigma = nn.Linear(hidden_dim, 1)
+        self.sigma = nn.Linear(hidden_dim, action_dim)
         self.max_action = max_action
 
     def forward(self, state):
