@@ -3,7 +3,7 @@
 Created with IntelliJ PyCharm.
 @Time: 2022/3/22 13:06
 @PROJECT_NAME: chhRL
-@File: PPO_Penalty.py
+@File: PPO.py
 @Author: chh3213
 @Email:
 @Description:ppo1

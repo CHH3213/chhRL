@@ -177,7 +177,7 @@ def main(args):
     print('max_action:', max_action)
     print("agent action_dim:", a_dim)
     print("agent state_dim:", s_dim)
-    from PPO_Penalty import PPO
+    from PPO import PPO
     agent = PPO(state_dim=s_dim, action_dim=a_dim, max_action=max_action, is_discrete=is_discrete, args=args)
 
     if args.train:
