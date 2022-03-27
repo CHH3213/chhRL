@@ -12,28 +12,32 @@ python 3.8、pytorch 1.8.1、gym 0.15.7
 
 
 
-- [Monte Carlo](https://github.com/CHH3213/chhRL/tree/master/chh_MonteCarlo)
-  - [on policy first visit Monte Carlo](https://github.com/CHH3213/chhRL/blob/master/chh_MonteCarlo/MC_OnPolicy.py)
-  - [Off Policy Monte Carlo](https://github.com/CHH3213/chhRL/blob/master/chh_MonteCarlo/MC_OnPolicy.py) 
-- [Dynamic Program](https://github.com/CHH3213/chhRL/tree/master/chh_DynamicProgram)
-  - [Policy iteration](https://github.com/CHH3213/chhRL/blob/master/chh_DynamicProgram/policy_iteration.py)
-  - [value iteration](https://github.com/CHH3213/chhRL/blob/master/chh_DynamicProgram/value_iteration.py)
-- [Sarsa](https://github.com/CHH3213/chhRL/tree/master/chh_Sarsa)
-- [Q learning](https://github.com/CHH3213/chhRL/tree/master/chh_QLearning)
-- [Policy Gradient](https://github.com/CHH3213/chhRL/tree/master/chh_PolicyGradient)
-    - [REINFORCE_discrete](https://github.com/CHH3213/chhRL/blob/master/chh_PolicyGradient/REINFORCE_discrete.py)
-    - [REINFORCE_continuous](https://github.com/CHH3213/chhRL/blob/master/chh_PolicyGradient/REINFORCE_continuous.py)
-    - [REINFORCE with Baseline](https://github.com/CHH3213/chhRL/blob/master/chh_PolicyGradient/REINFORCE_with_Baseline.py)
-- [DQN](https://github.com/CHH3213/chhRL/tree/master/chh_DQN)
-    - [Nature_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Nature_DQN.py)
-    - [Navie_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Naive_DQN.py)
-    - [Double_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Double_DQN.py)
-    - [Dueling_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Dueling_DQN.py)
-    - [DQN with Prioritized Experience Replay](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/DQN_PER.py)
-    - [Noisy_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Noisy_DQN.py)
-    - [N_Step_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/N_Step_DQN.py)
-    -  [Distributional_DQN](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Distributional_DQN.py)
-    - [Rainbow](https://github.com/CHH3213/chhRL/blob/master/chh_DQN/Rainbow.py)
+- [Monte Carlo](https://github.com/CHH3213/chhRL/tree/master/02-chh_MonteCarlo)
+  - [on policy first visit Monte Carlo](https://github.com/CHH3213/chhRL/blob/master/02-chh_MonteCarlo/MC_OnPolicy.py)
+  - [Off Policy Monte Carlo](https://github.com/CHH3213/chhRL/blob/master/02-chh_MonteCarlo/MC_OffPolicy.py) 
+- [Dynamic Program](https://github.com/CHH3213/chhRL/tree/master/01-chh_DynamicProgram)
+  - Policy iteration
+  - value iteration
+- [Sarsa](https://github.com/CHH3213/chhRL/tree/master/03-chh_Sarsa)
+- [Q learning](https://github.com/CHH3213/chhRL/tree/master/04-chh_QLearning)
+- [Policy Gradient](https://github.com/CHH3213/chhRL/tree/master/06-chh_PolicyGradient)
+    - REINFORCE_discrete
+    - REINFORCE_continuous
+    - REINFORCE with Baseline
+- [DQN](https://github.com/CHH3213/chhRL/tree/master/05-chh_DQN)
+    - Nature_DQN
+    - Navie_DQN
+    - Double_DQN
+    - Dueling_DQN
+    - DQN with Prioritized Experience Replay
+    - N_Step_DQN
+    - Distributional_DQN
+    - Noisy_DQN
+    - Rainbow
+- Actor-Critic
+- DDPG/TD3
+- PPO
+- SAC
 
 
 
