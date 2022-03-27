@@ -34,10 +34,10 @@ python 3.8、pytorch 1.8.1、gym 0.15.7
     - Distributional_DQN
     - Noisy_DQN
     - Rainbow
-- Actor-Critic
-- DDPG/TD3
-- PPO
-- SAC
+- [Actor-Critic](https://github.com/CHH3213/chhRL/tree/master/07-chh_Actor-Critic)
+- [DDPG/TD3](https://github.com/CHH3213/chhRL/tree/master/08-chh_DDPG-TD3)
+- [PPO](https://github.com/CHH3213/chhRL/tree/master/09-chh_PPO)
+- [SAC](https://github.com/CHH3213/chhRL/tree/master/10-chh_SAC)
 
 
 
