@@ -1,8 +1,5 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from tqdm import tqdm
 import random
-import time
 class DynaQ:
     """ Dyna-Q算法 """
     def __init__(self,

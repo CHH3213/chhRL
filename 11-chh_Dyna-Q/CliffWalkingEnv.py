@@ -1,10 +1,3 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from tqdm import tqdm
-import random
-import time
-
-
 class CliffWalkingEnv:
     def __init__(self, ncol, nrow):
         self.nrow = nrow
