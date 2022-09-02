@@ -38,6 +38,7 @@ python 3.8、pytorch 1.8.1、gym 0.15.7
 - [DDPG/TD3](https://github.com/CHH3213/chhRL/tree/master/08-chh_DDPG-TD3)
 - [PPO](https://github.com/CHH3213/chhRL/tree/master/09-chh_PPO)
 - [SAC](https://github.com/CHH3213/chhRL/tree/master/10-chh_SAC)
+- [Dyna-Q](https://hrl.boyuai.com/chapter/1/dyna-q%E7%AE%97%E6%B3%95)
 
 
 
